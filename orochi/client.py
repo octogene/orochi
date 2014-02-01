@@ -481,7 +481,8 @@ class PlayCommand(cmd.Cmd, object):
 
         # Play first track
         self.status = self.api.play_mix(mix_id)
-        self.p.load(self.status['track']['url'])
+        # print(mix_id)
+        self.p.load(self.status['track']['track_file_stream_url'])
         if self.parent_cmd.volume is not None:
             self.p.volume(self.parent_cmd.volume)
         self.do_status()
@@ -510,7 +511,7 @@ class PlayCommand(cmd.Cmd, object):
         else:
             self.status = self.api.next_track(self.mix_id)
             try:
-                self.p.load(self.status['track']['url'])
+                self.p.load(self.status['track']['track_file_stream_url'])
             except RuntimeError as e:
                 print('*** RuntimeError: {}'.format(e))
                 self.do_stop()
@@ -564,7 +565,7 @@ class PlayCommand(cmd.Cmd, object):
         else:
             print('Skipping track...')
             self.status = self.api.skip_track(self.mix_id)
-            self.p.load(self.status['track']['url'])
+            self.p.load(self.status['track']['track_file_stream_url'])
             self.do_status()
 
     def help_next_song(self):
@@ -577,7 +578,7 @@ class PlayCommand(cmd.Cmd, object):
         self.prompt = get_prompt(mix).encode('utf8')
 
         self.status = self.api.play_mix(self.mix_id)
-        self.p.load(self.status['track']['url'])
+        self.p.load(self.status['track']['track_file_stream_url'])
         self.do_status()
 
     def help_next_mix(self):

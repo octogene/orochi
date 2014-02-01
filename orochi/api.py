@@ -16,7 +16,7 @@ class EightTracksAPI(object):
         self.s = requests.Session()
         self.s.headers.update({
             'X-Api-Key': 'da88fbe6cfd1996c0b6391372a8c7f3eb2dbc5be',
-            'X-Api-Version': 2,
+            'X-Api-Version': 3,
             'Accept': 'application/json',
         })
         self.play_token = None
@@ -119,7 +119,7 @@ class EightTracksAPI(object):
             # new username won't work.
             self._post('logout')
             data = self._post('sessions.json', auth=(username, password))
-            self._user_token = data['user_token']
+            self._user_token = data['user']['user_token']
             self.s.headers.update({'X-User-Token': self._user_token})
 
     def search_mix(self, query_type, query, sort, page, per_page):
@@ -149,31 +149,28 @@ class EightTracksAPI(object):
             - The next results page number.
 
         """
-        params = {
-            'sort': sort,
-            'page': page,
-            'per_page': per_page,
-        }
-        resource = 'mixes.json'
+        params = {'include': 'mixes_details+pagination',
+                'page': page,
+                'per_page': per_page,
+                }
+        resource = 'mix_sets/'
 
         if query_type == 'tag':
             parts = query.split(',')
             tags = filter(None, map(lambda p: p.strip(), parts))
-            if len(tags) < 1:
-                params['tag'] = query
-            else:
-                params['tags'] = '+'.join(tags)
+            resource = 'mix_sets/tags:{tags}:{sorting}'.format(tags='+'.join(tags),sorting=sort)
         elif query_type == 'user':
             resource = 'users/{username}/mixes.json'.format(username=query)
         elif query_type == 'user_liked':
             params['view'] = 'liked'
             resource = 'users/{username}/mixes.json'.format(username=query)
         elif query_type == 'keyword':
-            params['q'] = query
+            resource = 'mix_sets/keyword:{keyword}'.format(keyword=query)
 
         data = self._get(resource, params)
 
-        return data['mixes'], data['total_pages'], data['next_page']
+        return (data['mix_set']['mixes'], data['mix_set']['pagination']['total_pages'],\
+               data['mix_set']['pagination']['next_page'])
 
     def get_mix_with_id(self, mix_id):
         """Find and return the mix with the specified ID.
