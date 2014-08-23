@@ -256,6 +256,21 @@ class Client(CmdExitMixin, cmd.Cmd, object):
         print('Search for a mix liked by user. You can then play a mix with the "play" command.')
         print('Pressing <enter> shows next page results.')
 
+    def do_search_similar(self, s):
+        if not s:
+            self.help_search_similar()
+        else:
+            try:
+                mix = self.mixes[int(s)]
+                mixes = self.search_request(mix['id'], 'similar')
+                self.display_search_results(mixes, s)
+            except KeyError:
+                print('*** Mix with number {i} not found: Did you run a search yet?'.format(i=s))
+
+    def help_search_similar(self):
+        print('Syntax: search_similar <mix>')
+        print('The <mix> argument is a search result number from the last search.')
+
     def do_set(self, s, setting=None, param=''):
         if not s:
             self.help_set()

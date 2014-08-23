@@ -166,6 +166,8 @@ class EightTracksAPI(object):
             resource = 'users/{username}/mixes.json'.format(username=query)
         elif query_type == 'keyword':
             resource = 'mix_sets/keyword:{keyword}'.format(keyword=query)
+        elif query_type == 'similar':
+            resource = 'mix_sets/similar:{mix_id}'.format(mix_id=query)
 
         data = self._get(resource, params)
 
